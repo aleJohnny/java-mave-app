@@ -19,7 +19,7 @@ pipeline {
                 echo 'building the application...'
             }
         }
-    
+    }
         stage('test') {
             when {
                 expression {
