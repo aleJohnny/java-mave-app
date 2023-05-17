@@ -13,14 +13,13 @@ pipeline {
     stages { 
         stage('init') {
             steps {
-                scripts {
+                script {
                     gv = load "script.groovy"
                 }
-                echo 'building the application...'
             }
         }
     }
-        stage('test') {
+        stage('build') {
             when {
                 expression {
                     params.executeTests
