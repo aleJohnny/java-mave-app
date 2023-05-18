@@ -19,11 +19,11 @@ pipeline {
         stage("build image") {
             steps {
                 script {
-                    echo "Building image..."
+                    echo "Building docker image..."
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', usernameVariable: 'USER', passwordVariable: 'PASS')])
-                    sh "docker build -t alejohnny/demoapp:jma-2.0 ."
-                    sh "echo ${PASS} | docker login -u ${USER} --password-with-stdin"
-                    sh "docker push alejohnny/demoapp:jma-2.0"
+                    sh "docker build -t alejohnny/demo-app:jma-2.0 ."
+                    sh "echo ${PASS} | docker login -u ${USER} --password-stdin"
+                    sh "docker push alejohnny/demo-app:jma-2.0"
                 }
             }
         }
