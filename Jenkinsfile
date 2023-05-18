@@ -2,65 +2,40 @@
 def gv
 
 pipeline {
-
     agent any
-
-    parameters {
-        choice(name: 'VERSION', choices: ['1.1.0', '1.2.0', '1.3.0'], description:'')
-        booleanParam(name: 'executeTests', defaultValue: true, description: '')
+    tools {
+        maven = "maven-3.6"
     }
-
     stages { 
-        stage('init') {
+        stage("build jar") {
             steps {
                 script {
-                    gv = load "script.groovy"
+                    echo "Building the application..."
+                    sh "mvn package"
+                }
+                
+            }
+        }
+        stage("build image") {
+            steps {
+                script {
+                    echo "Building image..."
+                    withCredentials([
+                        usernamePassword(credentialsId: 'docker-hub-repo', usernameVariable: 'USER', passwordVariable: 'PASS')
+                        ])
+                    sh "docker build -t alejohnny/demoapp:jma-2.0"
+                    sh "echo ${PASS} | docker login -u ${USER} --password-with-stdin"
+                    sh "docker push alejohnny/demoapp:jma-2.0"
                 }
             }
         }
-
-        stage('build') {
-            when {
-                expression {
-                    params.executeTests
-                }
-            }
+        stage("deploy") {
             steps {
                 script {
-                    gv.buildApp()
+                    echo "Deploying the application..."
                 }
             }
         }
-        
-        stage('test') {
-            when {
-                expression {
-                    params.executeTests
-                }
-            }
-            steps {
-                script {
-                    gv.testApp()
-                }
-            } 
-        }
-    
-        stage('deploy') {
-            input {
-                message "Select the environment to deploy to"
-                ok "Done"
-                parameters {
-                    choice(name: 'ONE', choices: ['dev', 'stage', 'production'], description:'')
-                    choice(name: 'TWO', choices: ['dev', 'stage', 'production'], description:'')
-                }
-            }
-            steps {
-                script {
-                    gv.deployApp()
-                    echo "Deploying to ${ONE}"
-                    echo "Deploying to ${TWO}"
-                }
-            }
-        }
+            
     }
 }
