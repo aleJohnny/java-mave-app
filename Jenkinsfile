@@ -1,40 +1,36 @@
-def groovy
-
 pipeline {
     agent any
-    parameters {
-        string(name: 'VERSION', defaultValue:'2.2', description: '')
-    }
-    tools {
-        maven 'maven-3.6'
-    }
     stages {
-        stage("init") {
+        stage("test") {
             steps {
                 script {
-                    groovy = load "script.groovy"
+                    echo "Testing the application..."
+                    echo "Executing pipeline for branch ${env.BRANCH_NAME}"
                 }
             }
         }
-        stage("build jar") {
-            steps {
-                script {
-                    groovy.buildJar()
+        stage("build") {
+            when {
+                expression {
+                    env.BRANCH_NAME == "master"
                 }
             }
-        }
-        stage("build image") {
             steps {
                 script {
-                    groovy.buildImage()
+                    echo "Building the application..."
                 }
             }
         }
         stage("deploy") {
-            steps {
-                script {
-                    groovy.deployApp()
+            when {
+                expression {
+                    env.BRANCH_NAME == "master"
                 }
+            }
+            steps {
+                script 
+                    echo "Deploying the application"
+                
             }
         }
     }
