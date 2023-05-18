@@ -28,9 +28,8 @@ pipeline {
                 }
             }
             steps {
-                script 
+                script {
                     echo "Deploying the application"
-                
             }
         }
     }
