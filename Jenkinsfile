@@ -8,6 +8,9 @@ pipeline {
     tools {
         maven 'maven-3.6'
     }
+    parameters {
+        string (name: 'VERSION', defaultValue: '2.3', description: 'Image version')
+    }
     stages {
         stage("init") {
             steps {
