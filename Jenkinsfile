@@ -15,7 +15,7 @@ pipeline {
         stage("testing webhook") {
             steps{
                 script {
-                     echo "Testing webhook automated build"
+                     echo "Testing webhook automated build..."
                 }
            }
         }
