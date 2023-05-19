@@ -9,7 +9,7 @@ pipeline {
         maven 'maven-3.6'
     }
     parameters {
-        string (name: 'VERSION', defaultValue: '2.3', description: 'Image version')
+        string (name: 'VERSION', defaultValue: '3.0', description: 'Image version')
     }
     stages {
         stage("init") {
@@ -29,7 +29,7 @@ pipeline {
         stage("build image") {
             steps {
                 script {
-                    buildImage()
+                    buildImage "alejohnny/demo-app:jma-${params.VERSION}"
                 }
             }
         }
