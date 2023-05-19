@@ -1,35 +1,52 @@
+#!/usr/bin/env groovy
+
+@Library('jenkins-shared-library')
+def gv
+
 pipeline {
     agent any
+    tools {
+        maven 'maven-3.6'
+    }
+    parameters {
+        string (name: 'VERSION', defaultValue: '3.0', description: 'Image version')
+    }
     stages {
-        stage("test") {
+        stage("testing webhook") {
+            steps{
+                script {
+                     echo "Testing webhook automated build"
+                }
+           }
+        }
+        stage("init") {
             steps {
                 script {
-                    echo "Testing the application..."
-                    echo "Executing pipeline for branch ${env.BRANCH_NAME}"
+                    gv = load "script.groovy"
                 }
             }
         }
-        stage("build") {
-            when {
-                expression {
-                    env.BRANCH_NAME == "master"
-                }
-            }
+        stage("build jar") {
             steps {
                 script {
-                    echo "Building the application..."
+                buildJar()
+                }
+            }
+        }
+        stage("build and push image") {
+            steps {
+                script {
+                    buildImage "alejohnny/demo-app:jma-${params.VERSION}"
+                    dockerLogin()
+                    dockerPush "alejohnny/demo-app:jma-${params.VERSION}"
                 }
             }
         }
         stage("deploy") {
-            when {
-                expression {
-                    env.BRANCH_NAME == "master"
-                }
-            }
             steps {
                 script {
-                    echo "Deploying the application"
+                    echo "deploying"
+                    //gv.deployApp()
                 }
             }
         }
