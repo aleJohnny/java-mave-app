@@ -12,6 +12,13 @@ pipeline {
         string (name: 'VERSION', defaultValue: '3.0', description: 'Image version')
     }
     stages {
+        stage("testing webhook") {
+            steps{
+                script {
+                     echo "Testing webhook automated build"
+                }
+           }
+        }
         stage("init") {
             steps {
                 script {
