@@ -1,54 +1,49 @@
 #!/usr/bin/env groovy
 
-@Library('jenkins-shared-library')
-def gv
+library identifier: 'jenkins-shared-library@master', retriever: modernSCM(
+    [$class: 'GitSCMSource',
+    remote: 'https://github.com/aleJohnny/jenkins-shared-library.git',
+    credentialsId: 'github-credentials'
+    ]
+)
 
 pipeline {
     agent any
     tools {
         maven 'maven-3.6'
     }
-    parameters {
-        string (name: 'VERSION', defaultValue: '3.0', description: 'Image version')
+    environment {
+        IMAGE_NAME = "alejohnny/demo-app:java-maven-1.0"
     }
     stages {
-        stage("testing webhook") {
-            steps{
-                script {
-                     echo "Testing webhook automated build..."
-                }
-           }
-        }
-        stage("init") {
+        stage("build app") {
             steps {
                 script {
-                    gv = load "script.groovy"
-                }
-            }
-        }
-        stage("build jar") {
-            steps {
-                script {
+                    echo "Building app Jar..."
                 buildJar()
                 }
             }
         }
-        stage("build and push image") {
+        stage("build") {
             steps {
                 script {
-                    buildImage "alejohnny/demo-app:jma-${params.VERSION}"
+                    echo "Building docker image..."
+                    buildImage(env.IMAGE_NAME)
                     dockerLogin()
-                    dockerPush "alejohnny/demo-app:jma-${params.VERSION}"
+                    dockerPush (env.IMAGE_NAME)
                 }
             }
         }
         stage("deploy") {
             steps {
                 script {
-                    echo "deploying"
-                    //gv.deployApp()
+                    echo "Deploying docker image to EC2..."
+                    def dockerCmd = "docker run -p 8080:8080 -d ${IMAGE_NAME}"
+                    sshagent(['ec2-server-key']) {
+                        sh "ssh -o StrictHostKeyChecking=no ec2-user@3.72.71.68 ${dockerCmd}"
+                    }
                 }
             }
         }
-    }
+    }   
 }
